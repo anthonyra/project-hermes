@@ -188,7 +188,7 @@ export default class GalaChainTokenContract extends GalaContract {
 
   @GalaTransaction({
     type: SUBMIT,
-    in: RefreshAllowancesDto,
+    in: RefreshAllowancesDto, 
     out: {arrayOf: TokenAllowance},
     verifySignature: true
   })
