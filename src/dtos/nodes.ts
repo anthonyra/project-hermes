@@ -1,6 +1,6 @@
 import { ChainCallDTO, TokenBalance, TokenInstanceKey } from "@gala-games/chain-api";
 import { NodeMetadata, NodeOperatorAgreement } from "../types/NodeOperatorAgreement";
-import { IsString, IsOptional, ValidateNested, IsNotEmpty, IsNumber } from "class-validator";
+import { IsOptional, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 
 export class SignNodeAgreementDto extends ChainCallDTO {

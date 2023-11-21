@@ -280,7 +280,7 @@ describe("Node Management on Galachain (with or without operator)", () => {
     expect(activateResult).toEqual(transactionSuccess());
   });
 
-  it("Activator isn't owner", async () => {
+  it("Only owner can activate node", async () => {
     const operatorDto = await createValidDTO<SignNodeAgreementDto>(SignNodeAgreementDto, {
       tokenInstanceKey: token2Key,
       nodePublicKey: node.identityKey,
@@ -312,7 +312,7 @@ describe("Node Management on Galachain (with or without operator)", () => {
     expect(activateResult).toEqual(transactionErrorMessageContains("need to be the owner!"));
   });
 
-  it("Missing operator signature", async () => {
+  it("Operating agreement is missing operator signature", async () => {
     const activateNodeDto = await createValidDTO<ActivateNodeDto>(ActivateNodeDto, {
       owner: user1.identityKey,
       lockAuthority: user2.identityKey,
@@ -334,7 +334,7 @@ describe("Node Management on Galachain (with or without operator)", () => {
     expect(activateResult).toEqual(transactionErrorMessageContains("missing operator signature!"));
   });
 
-  it("Wrong signature by operator for operatorAgreement", async () => {
+  it("Only operator can pre-sign operator agreement", async () => {
     const operatorDto = await createValidDTO<SignNodeAgreementDto>(SignNodeAgreementDto, {
       tokenInstanceKey: token2Key,
       nodePublicKey: node.identityKey,
@@ -366,7 +366,7 @@ describe("Node Management on Galachain (with or without operator)", () => {
     expect(activateResult).toEqual(transactionErrorKey("FORBIDDEN"));
   });
 
-  it("Owner changes node NFT for operatorAgreement", async () => {
+  it("Owner cannot change node NFT for operatorAgreement", async () => {
     const operatorDto = await createValidDTO<SignNodeAgreementDto>(SignNodeAgreementDto, {
       tokenInstanceKey: token2Key,
       nodePublicKey: node.identityKey,
@@ -398,7 +398,7 @@ describe("Node Management on Galachain (with or without operator)", () => {
     expect(activateResult).toEqual(transactionErrorMessageContains("token mismatch!"));
   });
 
-  it("Owner changes node public key for operatorAgreement", async () => {
+  it("Owner cannot change node public key for operatorAgreement", async () => {
     const operatorDto = await createValidDTO<SignNodeAgreementDto>(SignNodeAgreementDto, {
       tokenInstanceKey: token2Key,
       nodePublicKey: node.identityKey,
@@ -430,7 +430,7 @@ describe("Node Management on Galachain (with or without operator)", () => {
     expect(activateResult).toEqual(transactionErrorMessageContains("node key mismatch!"));
   });
 
-  it("Owner changes operator publicKey for operatorAgreement", async () => {
+  it("Owner cannot change operator publicKey for operatorAgreement", async () => {
     const operatorDto = await createValidDTO<SignNodeAgreementDto>(SignNodeAgreementDto, {
       tokenInstanceKey: token2Key,
       nodePublicKey: node.identityKey,
@@ -462,7 +462,7 @@ describe("Node Management on Galachain (with or without operator)", () => {
     expect(activateResult).toEqual(transactionErrorKey("FORBIDDEN"));
   });
 
-  it("Owner changes fee for operatorAgreement", async () => {
+  it("Owner cannot change fee for operatorAgreement", async () => {
     const operatorDto = await createValidDTO<SignNodeAgreementDto>(SignNodeAgreementDto, {
       tokenInstanceKey: token2Key,
       nodePublicKey: node.identityKey,
@@ -538,7 +538,7 @@ describe("Node Management on Galachain (with or without operator)", () => {
     expect(updateResult).toEqual(transactionSuccess(expect.objectContaining({ nodePublicKey: operator.identityKey })));
   });
 
-  it("Only operator can update node publicKey with operatorAgreement", async () => {
+  it("Only operator can update node publicKey", async () => {
     const operatorDto = await createValidDTO<SignNodeAgreementDto>(SignNodeAgreementDto, {
       tokenInstanceKey: token2Key,
       nodePublicKey: node.identityKey,
@@ -697,4 +697,8 @@ describe("Node Management on Galachain (with or without operator)", () => {
 
     expect(deactivateResult).toEqual(transactionErrorMessageContains("need to be the owner!"));
   });
+
+  // @todo test unlocking of node NFTs (should happen on deactivate) or manually with unlock
+
+  // @todo test transferring node NFT with operator agreement attached
 });
