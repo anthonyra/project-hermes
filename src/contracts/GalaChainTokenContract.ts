@@ -91,6 +91,9 @@ import { plainToClass } from "class-transformer";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { version } from "../../package.json";
+import { ActivateNodeDto, ActivateNodeResponse, DeactivateNodeDto, FetchNodeMetadataDto, SignNodeAgreementDto, UpdateNodeDto } from "src/dtos/nodes";
+import { activateNode, deactivateNode, fetchNodeMetadata, signNodeAgreement, updateNode } from "src/chaincode/nodeOperations";
+import { NodeMetadata, NodeOperatorMetadata } from "src/types/NodeOperatorAgreement";
 
 @Info({title: "GalaChainToken", description: "Contract for managing GalaChain tokens"})
 export default class GalaChainTokenContract extends GalaContract {
@@ -547,6 +550,71 @@ export default class GalaChainTokenContract extends GalaContract {
   })
   public FetchBurns(ctx: GalaChainContext, dto: FetchBurnsDto): Promise<TokenBurn[]> {
     return fetchBurns(ctx, dto);
+  }
+
+  @GalaTransaction({
+    type: EVALUATE,
+    in: SignNodeAgreementDto,
+    out: NodeOperatorMetadata
+  })
+  public SignNodeAgreement(dto: SignNodeAgreementDto): Promise<NodeOperatorMetadata> {
+    const { tokenInstanceKey, nodePublicKey, operatorAgreement } = dto;
+    return signNodeAgreement({ tokenInstanceKey, nodePublicKey, operatorAgreement });
+  }
+
+  @GalaTransaction({
+    type: SUBMIT,
+    in: ActivateNodeDto,
+    out: ActivateNodeResponse,
+    verifySignature: true
+  })
+  public ActivateNode(ctx: GalaChainContext, dto: ActivateNodeDto): Promise<ActivateNodeResponse> {
+    return activateNode(ctx, {
+      owner: dto.owner ?? ctx.callingUser,
+      lockAuthority: dto.lockAuthority,
+      tokenInstanceKey: dto.tokenInstanceKey,
+      expires: 0,
+      nodePublicKey: dto.nodePublicKey,
+      operatorAgreement: dto.operatorAgreement,
+      operatorSignature: dto.operatorSignature
+    });
+  }
+  
+  @GalaTransaction({
+    type: SUBMIT,
+    in: DeactivateNodeDto,
+    out: NodeMetadata,
+    verifySignature: true
+  })
+  public DeactivateNode(ctx: GalaChainContext, dto: DeactivateNodeDto): Promise<NodeMetadata> {
+    return deactivateNode(ctx, {
+      owner: dto.owner ?? ctx.callingUser,
+      tokenInstanceKey: dto.tokenInstanceKey
+    });
+  }
+
+  @GalaTransaction({
+    type: SUBMIT,
+    in: UpdateNodeDto,
+    out: NodeMetadata,
+    verifySignature: true
+  })
+  public UpdateNode(ctx: GalaChainContext, dto: UpdateNodeDto): Promise<NodeMetadata> {
+    return updateNode(ctx, {
+      owner: dto.owner ?? ctx.callingUser,
+      tokenInstanceKey: dto.tokenInstanceKey,
+      nodePublicKey: dto.nodePublicKey,
+      operatorAgreement: dto.operatorAgreement
+    });
+  }
+
+  @GalaTransaction({
+    type: EVALUATE,
+    in: FetchNodeMetadataDto,
+    out: NodeMetadata
+  })
+  public FetchNodeMetadata(ctx: GalaChainContext, dto: FetchNodeMetadataDto): Promise<NodeMetadata> {
+    return fetchNodeMetadata(ctx, dto);
   }
 }
 

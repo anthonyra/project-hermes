@@ -18,3 +18,5 @@
 // export defined classes from this index as they are created, for example
 
 // export * from "./PlayerProfile";
+
+export * from "./NodeOperatorAgreement"

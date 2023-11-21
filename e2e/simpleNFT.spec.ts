@@ -56,7 +56,7 @@ describe("Simple NFT scenario", () => {
 
   const nftClassKey: TokenClassKey = plainToInstance(TokenClassKey, {
     collection: randomize("Platform"),
-    category: "Currency",
+    category: "Node",
     type: "GALA",
     additionalKey: "none"
   });

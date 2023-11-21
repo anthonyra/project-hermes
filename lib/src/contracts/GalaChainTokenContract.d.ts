@@ -1,5 +1,7 @@
 import { GalaChainContext, GalaContract } from "@gala-games/chaincode";
 import { BatchMintTokenDto, BurnTokensDto, CreateTokenClassDto, DeleteAllowancesDto, FetchAllowancesDto, FetchAllowancesResponse, FetchBalancesDto, FetchBurnsDto, FetchMintRequestsDto, FetchTokenClassesDto, FetchTokenClassesResponse, FetchTokenClassesWithPaginationDto, FulfillMintDto, FullAllowanceCheckDto, FullAllowanceCheckResDto, GrantAllowanceDto, HighThroughputMintTokenDto, LockTokenDto, LockTokensDto, MintRequestDto, MintTokenDto, MintTokenWithAllowanceDto, RefreshAllowancesDto, ReleaseTokenDto, TokenAllowance, TokenBalance, TokenBurn, TokenClass, TokenClassKey, TokenInstanceKey, TransferTokenDto, UnlockTokenDto, UnlockTokensDto, UpdateTokenClassDto, UseTokenDto } from "@gala-games/chain-api";
+import { ActivateNodeDto, ActivateNodeResponse, DeactivateNodeDto, FetchNodeMetadataDto, SignNodeAgreementDto, UpdateNodeDto } from "src/dtos/nodes";
+import { NodeMetadata, NodeOperatorMetadata } from "src/types/NodeOperatorAgreement";
 export default class GalaChainTokenContract extends GalaContract {
     constructor();
     CreateTokenClass(ctx: GalaChainContext, dto: CreateTokenClassDto): Promise<TokenClassKey>;
@@ -42,4 +44,9 @@ export default class GalaChainTokenContract extends GalaContract {
     TransferToken(ctx: GalaChainContext, dto: TransferTokenDto): Promise<TokenBalance[]>;
     BurnTokens(ctx: GalaChainContext, dto: BurnTokensDto): Promise<TokenBurn[]>;
     FetchBurns(ctx: GalaChainContext, dto: FetchBurnsDto): Promise<TokenBurn[]>;
+    SignNodeAgreement(dto: SignNodeAgreementDto): Promise<NodeOperatorMetadata>;
+    ActivateNode(ctx: GalaChainContext, dto: ActivateNodeDto): Promise<ActivateNodeResponse>;
+    DeactivateNode(ctx: GalaChainContext, dto: DeactivateNodeDto): Promise<NodeMetadata>;
+    UpdateNode(ctx: GalaChainContext, dto: UpdateNodeDto): Promise<NodeMetadata>;
+    FetchNodeMetadata(ctx: GalaChainContext, dto: FetchNodeMetadataDto): Promise<NodeMetadata>;
 }
