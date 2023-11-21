@@ -91,9 +91,9 @@ import { plainToClass } from "class-transformer";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { version } from "../../package.json";
-import { ActivateNodeDto, ActivateNodeResponse, DeactivateNodeDto, FetchNodeMetadataDto, SignNodeAgreementDto, UpdateNodeDto } from "src/dtos/nodes";
-import { activateNode, deactivateNode, fetchNodeMetadata, signNodeAgreement, updateNode } from "src/chaincode/nodeOperations";
-import { NodeMetadata, NodeOperatorMetadata } from "src/types/NodeOperatorAgreement";
+import { ActivateNodeDto, ActivateNodeResponse, DeactivateNodeDto, FetchNodeMetadataDto, SignNodeAgreementDto, UpdateNodeDto } from "../dtos/nodes";
+import { activateNode, deactivateNode, fetchNodeMetadata, signNodeAgreement, updateNode } from "../chaincode/nodeOperations";
+import { NodeMetadata, NodeOperatorMetadata } from "../types/NodeOperatorAgreement";
 
 @Info({title: "GalaChainToken", description: "Contract for managing GalaChain tokens"})
 export default class GalaChainTokenContract extends GalaContract {
@@ -553,16 +553,6 @@ export default class GalaChainTokenContract extends GalaContract {
   }
 
   @GalaTransaction({
-    type: EVALUATE,
-    in: SignNodeAgreementDto,
-    out: NodeOperatorMetadata
-  })
-  public SignNodeAgreement(dto: SignNodeAgreementDto): Promise<NodeOperatorMetadata> {
-    const { tokenInstanceKey, nodePublicKey, operatorAgreement } = dto;
-    return signNodeAgreement({ tokenInstanceKey, nodePublicKey, operatorAgreement });
-  }
-
-  @GalaTransaction({
     type: SUBMIT,
     in: ActivateNodeDto,
     out: ActivateNodeResponse,
@@ -603,8 +593,7 @@ export default class GalaChainTokenContract extends GalaContract {
     return updateNode(ctx, {
       owner: dto.owner ?? ctx.callingUser,
       tokenInstanceKey: dto.tokenInstanceKey,
-      nodePublicKey: dto.nodePublicKey,
-      operatorAgreement: dto.operatorAgreement
+      nodePublicKey: dto.nodePublicKey
     });
   }
 

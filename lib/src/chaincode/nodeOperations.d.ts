@@ -1,7 +1,7 @@
 import { GalaChainContext } from "@gala-games/chaincode";
 import { TokenInstanceKey } from "@gala-games/chain-api";
-import { NodeMetadata, NodeOperatorAgreement, NodeOperatorMetadata } from "src/types/NodeOperatorAgreement";
-import { ActivateNodeResponse } from "src/dtos/nodes";
+import { NodeMetadata, NodeOperatorAgreement, NodeOperatorMetadata } from "../types/NodeOperatorAgreement";
+import { ActivateNodeResponse } from "../dtos/nodes";
 interface SignNodeAgreementParams {
     tokenInstanceKey: TokenInstanceKey;
     nodePublicKey: string;
@@ -24,9 +24,8 @@ interface UpdateNodeParams {
     owner: string | undefined;
     tokenInstanceKey: TokenInstanceKey;
     nodePublicKey: string | undefined;
-    operatorAgreement: NodeOperatorAgreement | undefined;
 }
-export declare function updateNode(ctx: GalaChainContext, { owner, tokenInstanceKey, nodePublicKey, operatorAgreement }: UpdateNodeParams): Promise<NodeMetadata>;
+export declare function updateNode(ctx: GalaChainContext, { owner, tokenInstanceKey, nodePublicKey }: UpdateNodeParams): Promise<NodeMetadata>;
 interface FetchNodeMetadataParams {
     tokenInstanceKey: TokenInstanceKey;
 }

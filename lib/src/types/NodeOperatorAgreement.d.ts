@@ -5,8 +5,8 @@ import { BigNumber } from "bignumber.js";
  * @param fee - percentage to split distribution by
  */
 export declare class NodeOperatorAgreement {
-    publicKey: string;
-    fee: number;
+    publicKey?: string;
+    fee?: number;
 }
 export declare class NodeOperatorMetadata extends ChainObjectBase {
     static INDEX_KEY: string;
@@ -19,7 +19,7 @@ export declare class NodeOperatorMetadata extends ChainObjectBase {
     operatorAgreement?: NodeOperatorAgreement;
     getMetadata(): NodeMetadata;
     deactivate(): NodeOperatorMetadata;
-    update(nodePublicKey?: string, operatorAgreement?: NodeOperatorAgreement): NodeOperatorMetadata;
+    update(nodePublicKey?: string): NodeOperatorMetadata;
 }
 export declare class NodeMetadata {
     nodePublicKey: string | undefined;

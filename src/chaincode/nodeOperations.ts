@@ -1,7 +1,7 @@
 import { GalaChainContext, ensureIsAuthorizedBy, getObjectByKey, lockToken, putChainObject } from "@gala-games/chaincode";
-import { ChainCallDTO, TokenBalance, TokenClassKey, TokenInstanceKey, UnauthorizedError } from "@gala-games/chain-api";
-import { NodeMetadata, NodeOperatorAgreement, NodeOperatorMetadata } from "src/types/NodeOperatorAgreement";
-import { ActivateNodeResponse, SignNodeAgreementDto } from "src/dtos/nodes";
+import { ChainCallDTO, ChainObjectBase, TokenBalance, TokenClassKey, TokenInstanceKey, UnauthorizedError } from "@gala-games/chain-api";
+import { NodeMetadata, NodeOperatorAgreement, NodeOperatorMetadata } from "../types/NodeOperatorAgreement";
+import { ActivateNodeResponse, SignNodeAgreementDto } from "../dtos/nodes";
 import { BigNumber } from "bignumber.js";
 import { plainToInstance } from "class-transformer";
 
@@ -48,17 +48,25 @@ export async function activateNode(ctx: GalaChainContext, {
         throw new UnauthorizedError("need to be the owner!")
     }
 
-    if (operatorAgreement && !operatorSignature) {
+    if (operatorAgreement && (operatorSignature ?? "").length == 0) {
         throw new UnauthorizedError("missing operator signature!")
     }
     
     if (operatorAgreement && operatorSignature) {
         const operatorDto = ChainCallDTO.deserialize(SignNodeAgreementDto, operatorSignature);
-        await ensureIsAuthorizedBy(ctx, operatorDto, operatorAgreement?.publicKey);
+        await ensureIsAuthorizedBy(ctx, operatorDto, operatorAgreement?.publicKey ?? "");
         
         const { tokenInstanceKey: operatorTIK, nodePublicKey: operatorNPK, operatorAgreement: operatorOA } = operatorDto;
-        if (JSON.stringify(tokenInstanceKey) !== JSON.stringify(operatorTIK) || nodePublicKey !== operatorNPK || JSON.stringify(operatorAgreement) !== JSON.stringify(operatorOA)) {
-            throw new UnauthorizedError("operator agreement verification failed!")
+        if (JSON.stringify(tokenInstanceKey) !== JSON.stringify(operatorTIK)) {
+            throw new UnauthorizedError("token mismatch!")
+        }
+        
+        if (nodePublicKey !== operatorNPK) {
+            throw new UnauthorizedError("node key mismatch!")
+        }
+        
+        if (JSON.stringify(operatorAgreement) !== JSON.stringify(operatorOA)) {
+            throw new UnauthorizedError("operator agreement mismatch!")
         }
     }
 
@@ -97,8 +105,9 @@ export async function deactivateNode(ctx: GalaChainContext, {
         throw new UnauthorizedError("need to be the owner!")
     }
 
-    const { instance } = tokenInstanceKey;
-    let nodeOperatorMetadata = await getObjectByKey(ctx, NodeOperatorMetadata, instance.toString());
+    const { collection, category, type, additionalKey, instance } = tokenInstanceKey
+    const key = ChainObjectBase.getCompositeKeyFromParts(NodeOperatorMetadata.INDEX_KEY, [collection, category, type, additionalKey, instance.toString()])
+    let nodeOperatorMetadata = await getObjectByKey(ctx, NodeOperatorMetadata, key);
     nodeOperatorMetadata = nodeOperatorMetadata.deactivate();
     
     nodeOperatorMetadata.validateOrReject();
@@ -106,27 +115,29 @@ export async function deactivateNode(ctx: GalaChainContext, {
     await putChainObject(ctx, nodeOperatorMetadata);
     return nodeOperatorMetadata.getMetadata()
 }
-
 interface UpdateNodeParams {
     owner: string | undefined;
     tokenInstanceKey: TokenInstanceKey;
     nodePublicKey: string | undefined;
-    operatorAgreement: NodeOperatorAgreement | undefined;
 }
 export async function updateNode(ctx: GalaChainContext, {
     owner,
     tokenInstanceKey,
-    nodePublicKey,
-    operatorAgreement
+    nodePublicKey
 }: UpdateNodeParams): Promise<NodeMetadata> {
-    if (owner !== ctx.callingUser) {
-        throw new UnauthorizedError("need to be the owner!")
+    const { collection, category, type, additionalKey, instance } = tokenInstanceKey
+    const key = ChainObjectBase.getCompositeKeyFromParts(NodeOperatorMetadata.INDEX_KEY, [collection, category, type, additionalKey, instance.toString()])
+    let nodeOperatorMetadata = await getObjectByKey(ctx, NodeOperatorMetadata, key);
+
+    if (!nodeOperatorMetadata.operatorAgreement && (owner !== ctx.callingUser)) {
+        throw new UnauthorizedError("need to be owner to update!")
     }
     
-    const { instance } = tokenInstanceKey;
-    let nodeOperatorMetadata = await getObjectByKey(ctx, NodeOperatorMetadata, instance.toString());
-    nodeOperatorMetadata = nodeOperatorMetadata.update(nodePublicKey, operatorAgreement);
-    
+    if (nodeOperatorMetadata.operatorAgreement && (nodeOperatorMetadata.operatorAgreement?.publicKey !== ctx.callingUser)) {
+        throw new UnauthorizedError("need to be operator to update!")
+    }
+
+    nodeOperatorMetadata = nodeOperatorMetadata.update(nodePublicKey);
     nodeOperatorMetadata.validateOrReject();
     
     await putChainObject(ctx, nodeOperatorMetadata);
@@ -139,7 +150,8 @@ interface FetchNodeMetadataParams {
 export async function fetchNodeMetadata(ctx: GalaChainContext, {
     tokenInstanceKey
 }: FetchNodeMetadataParams): Promise<NodeMetadata> {
-    const { instance } = tokenInstanceKey;
-    let nodeOperatorMetadata = await getObjectByKey(ctx, NodeOperatorMetadata, instance.toString());
+    const { collection, category, type, additionalKey, instance } = tokenInstanceKey
+    const key = ChainObjectBase.getCompositeKeyFromParts(NodeOperatorMetadata.INDEX_KEY, [collection, category, type, additionalKey, instance.toString()])
+    let nodeOperatorMetadata = await getObjectByKey(ctx, NodeOperatorMetadata, key);
     return nodeOperatorMetadata.getMetadata();
 }

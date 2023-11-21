@@ -9,13 +9,13 @@ import { Type } from "class-transformer";
  * @param fee - percentage to split distribution by 
  */
 export class NodeOperatorAgreement {
+    @IsOptional()
     @IsString()
-    @IsNotEmpty()
-    publicKey: string;
+    publicKey?: string;
 
+    @IsOptional()
     @IsNumber()
-    @IsNotEmpty()
-    fee: number;
+    fee?: number;
 }
 
 export class NodeOperatorMetadata extends ChainObjectBase {
@@ -40,7 +40,7 @@ export class NodeOperatorMetadata extends ChainObjectBase {
     nodePublicKey?: string;
 
     @IsOptional()
-    @ValidateNested({ each: true })
+    @ValidateNested()
     @Type(() => NodeOperatorAgreement)
     operatorAgreement?: NodeOperatorAgreement;
 
@@ -57,9 +57,8 @@ export class NodeOperatorMetadata extends ChainObjectBase {
         return this
     };
 
-    update(nodePublicKey?: string, operatorAgreement?: NodeOperatorAgreement): NodeOperatorMetadata {
+    update(nodePublicKey?: string): NodeOperatorMetadata {
         if (nodePublicKey) this.nodePublicKey = nodePublicKey;
-        if (operatorAgreement) this.operatorAgreement = operatorAgreement;
         return this;
     };
 }
