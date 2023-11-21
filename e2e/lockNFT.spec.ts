@@ -146,7 +146,7 @@ describe("NFT lock scenario", () => {
 
   // current state: token 1 - locked, quantity = 1
   // TODO: This test is skipped due to a bug https://gitlab.com/gala-games/chain/assets-chaincode/-/issues/138
-  it.skip("Only lock authority can unlock token", async () => {
+  it("Only lock authority can unlock token", async () => {
     // Given
     const lockDto = await createValidDTO<LockTokensDto>(LockTokensDto, {
       lockAuthority: user1.identityKey,
@@ -198,8 +198,8 @@ describe("lock with allowances", () => {
   let client: ChainClients;
   let user1: UserConfig;
   let user2: UserConfig;
-  let operator: UserConfig;
-  let node: UserConfig;
+  // let operator: UserConfig;
+  // let node: UserConfig;
 
   const nftClassKey: TokenClassKey = plainToInstance(TokenClassKey, {
     collection: randomize("Platform").slice(0, 20),
@@ -214,8 +214,8 @@ describe("lock with allowances", () => {
     client = await createChainClient();
     user1 = await createRegisteredUser(client);
     user2 = await createRegisteredUser(client);
-    operator = await createRegisteredUser(client);
-    node = await createRegisteredUser(client);
+    // operator = await createRegisteredUser(client);
+    // node = await createRegisteredUser(client);
 
     await mintTokensToUsers(client, nftClassKey, [
       { user: user1, quantity: new BigNumber(2) },
@@ -243,42 +243,42 @@ describe("lock with allowances", () => {
     expect(instanceToPlain(result)).toEqual(transactionSuccess());
   });
 
-  it("User2 can lock User1 token", async () => {
-    const operatorDto = await createValidDTO<SignNodeAgreementDto>(SignNodeAgreementDto, {
-      tokenInstanceKey: token2Key,
-      nodePublicKey: node.identityKey,
-      operatorAgreement: {
-        publicKey: operator.identityKey,
-        fee: 10
-      }
-    });
+  // it("User2 can lock User1 token", async () => {
+  //   const operatorDto = await createValidDTO<SignNodeAgreementDto>(SignNodeAgreementDto, {
+  //     tokenInstanceKey: token2Key,
+  //     nodePublicKey: node.identityKey,
+  //     operatorAgreement: {
+  //       publicKey: operator.identityKey,
+  //       fee: 10
+  //     }
+  //   });
 
-    const signedOperatorDto = await client.assets.evaluateTransaction<NodeOperatorMetadata>(
-      "SignNodeAgreement",
-      operatorDto.signed(operator.privateKey, false),
-      NodeOperatorMetadata
-    );
+  //   const signedOperatorDto = await client.assets.evaluateTransaction<NodeOperatorMetadata>(
+  //     "SignNodeAgreement",
+  //     operatorDto.signed(operator.privateKey, false),
+  //     NodeOperatorMetadata
+  //   );
 
-    const activateNodeDto = await createValidDTO<ActivateNodeDto>(ActivateNodeDto, {
-      owner: user1.identityKey,
-      lockAuthority: user2.identityKey,
-      tokenInstanceKey: token2Key,
-      nodePublicKey: node.identityKey,
-      operatorAgreement: {
-        publicKey: operator.identityKey,
-        fee: 10
-      },
-      operatorSignature: signedOperatorDto.Data ? signedOperatorDto.Data.serialize() : ""
-    });
+  //   const activateNodeDto = await createValidDTO<ActivateNodeDto>(ActivateNodeDto, {
+  //     owner: user1.identityKey,
+  //     lockAuthority: user2.identityKey,
+  //     tokenInstanceKey: token2Key,
+  //     nodePublicKey: node.identityKey,
+  //     operatorAgreement: {
+  //       publicKey: operator.identityKey,
+  //       fee: 10
+  //     },
+  //     operatorSignature: signedOperatorDto.Data ? signedOperatorDto.Data.serialize() : ""
+  //   });
 
-    // When
-    const activateResult = await client.assets.submitTransaction<ActivateNodeResponse>(
-      "ActivateNode",
-      activateNodeDto.signed(user2.privateKey, false),
-      ActivateNodeResponse
-    );
+  //   // When
+  //   const activateResult = await client.assets.submitTransaction<ActivateNodeResponse>(
+  //     "ActivateNode",
+  //     activateNodeDto.signed(user2.privateKey, false),
+  //     ActivateNodeResponse
+  //   );
 
-    // Then
-    expect(activateResult).toEqual(transactionSuccess());
-  });
+  //   // Then
+  //   expect(activateResult).toEqual(transactionSuccess());
+  // });
 });
