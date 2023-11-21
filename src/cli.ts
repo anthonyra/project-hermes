@@ -16,7 +16,7 @@
  */
 
 // Import tracing to ensure this is the first in the application
-import "./tracer";
+//import "./tracer";
 
 // Import and run standard fabric-chaincode-node cli
 import "fabric-shim/cli";
