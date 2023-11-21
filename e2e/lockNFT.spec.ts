@@ -38,8 +38,8 @@ import {
 } from "@gala-games/chain-api";
 import BigNumber from "bignumber.js";
 import { instanceToPlain, plainToInstance } from "class-transformer";
-import { ActivateNodeDto, ActivateNodeResponse, SignNodeAgreementDto } from "../src/dtos/index";
-import { NodeOperatorMetadata } from "../src/types/index";
+// import { ActivateNodeDto, ActivateNodeResponse, SignNodeAgreementDto } from "../src/dtos/index";
+// import { NodeOperatorMetadata } from "../src/types/index";
 
 describe("NFT lock scenario", () => {
   let client: ChainClients;

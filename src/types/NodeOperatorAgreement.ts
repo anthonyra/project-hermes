@@ -1,15 +1,20 @@
 import { ChainObjectBase } from "@gala-games/chain-api";
 import { BigNumber } from "bignumber.js";
 import { ChainKey } from "@gala-games/chain-api";
-import { IsString, IsOptional, ValidateNested } from "class-validator";
-
+import { IsString, IsOptional, ValidateNested, IsNotEmpty, IsNumber } from "class-validator";
+import { Type } from "class-transformer";
 
 /**
  * @param key - publicKey associated to node operator
  * @param fee - percentage to split distribution by 
  */
-export interface NodeOperatorAgreement {
+export class NodeOperatorAgreement {
+    @IsString()
+    @IsNotEmpty()
     publicKey: string;
+
+    @IsNumber()
+    @IsNotEmpty()
     fee: number;
 }
 
@@ -30,11 +35,13 @@ export class NodeOperatorMetadata extends ChainObjectBase {
     @ChainKey({ position: 4 })
     instance: BigNumber;
 
+    @IsOptional()
     @IsString()
     nodePublicKey?: string;
 
     @IsOptional()
-    @ValidateNested()
+    @ValidateNested({ each: true })
+    @Type(() => NodeOperatorAgreement)
     operatorAgreement?: NodeOperatorAgreement;
 
     getMetadata(): NodeMetadata {

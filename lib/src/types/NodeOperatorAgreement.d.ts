@@ -4,7 +4,7 @@ import { BigNumber } from "bignumber.js";
  * @param key - publicKey associated to node operator
  * @param fee - percentage to split distribution by
  */
-export interface NodeOperatorAgreement {
+export declare class NodeOperatorAgreement {
     publicKey: string;
     fee: number;
 }
